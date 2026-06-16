@@ -1,0 +1,14 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "music-stems"
+version = "0.1.0"
+dependencies = ["demucs", "rich"]
+
+[project.scripts]
+music-stems = "cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["."]
