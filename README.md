@@ -28,4 +28,4 @@ music-stems <track> -d cpu -o ~/Desktop
 | `--mp3` | save as mp3 instead of wav | off |
 
 ## credits
-stems uses [demucs](https://github.com/facebookresearch/demucs) by Meta Research
+stems are created by [demucs](https://github.com/facebookresearch/demucs) by Meta Research
