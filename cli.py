@@ -8,6 +8,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 console = Console()
+valid_extensions = {".mp3", ".wav"}
 
 def intro():
     time.sleep(0.3)
@@ -32,8 +33,7 @@ def intro():
     console.print()
     console.print("  take any song and split it into stems: [cyan]vocals[/cyan], [cyan]drums[/cyan], [cyan]bass[/cyan], and [cyan]other[/cyan]")
     console.print()
-    console.print("  [dim]how to use:[/dim]  music-stems [bold]<track>[/bold] [options]")
-    console.print("  [dim]for detailed help:[/dim]   music-stems [bold]--help[/bold]")
+    console.print("  [dim]how to use:[/dim]  just enter your [magenta]input audio path[/magenta] and [magenta]desired save directory[/magenta]!")
     console.print()
 
 def print_result(output_dir: str, model: str, track: str, mp3: bool):
@@ -47,23 +47,49 @@ def print_result(output_dir: str, model: str, track: str, mp3: bool):
         console.print(f"  [cyan]{f.name}[/cyan]  [dim]{f}[/dim]")
     console.print()
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="separate any song into their stems via demucs, a hybrid transformer model released by Meta"
-    )
-    parser.add_argument("-d", "--device", default="mps", choices=["mps", "cpu", "cuda"], help="choose your device (default: mps)")
-    parser.add_argument("track", nargs="?", help="path to the audio file")
-    parser.add_argument("-o", "--output", default="separated", help="output directory (default: ./separated)")
-    parser.add_argument("--mp3", action="store_true", help="save output as mp3 instead of wav")
+def run_demucs(track, output, mp3=False):
+    demucs_args = ["-n", "htdemucs", "-o", output]
+    if mp3:
+        demucs_args.append("--mp3")
     
-    args = parser.parse_args()
+    demucs_args.append(track)
+    demucs.separate.main(demucs_args)
+    console.print("[bold green]complete![/bold green]")
 
-    if not args.track:
-        intro()
-    else:
-        demucs_args = ["-n", "htdemucs", "--device", args.device, "-o", args.output]
-        if args.mp3:
-            demucs_args.append("--mp3")
-        demucs_args.append(args.track)
 
-        demucs.separate.main(demucs_args)
+def main():
+    intro()
+    try:
+        while True:
+            while True:
+                track = input("enter your audio file path: ").strip()
+                track_path = Path(track)
+                if not track_path.exists():
+                    console.print(f"[red]file not found: {track}[/red]")
+                elif track_path.suffix.lower() not in valid_extensions:
+                    console.print(f"[red]unsupported file type '{track_path.suffix}', use: {', '.join(valid_extensions)}[/red]")
+                else:
+                    break
+            
+            while True:
+                output = input("enter your desired output directory (defaults to current directory): ").strip()
+                output_path = Path(output).expanduser().resolve()
+                if not output_path.exists():
+                    create = input(f"  path '{output}' doesn't exist, create it? (y/n): ").strip().lower()
+                    if create == "y":
+                        output_path.mkdir(parents=True)
+                        break
+                else:
+                    break
+            
+            mp3 = input("save as mp3? (y/n, default: n): ").strip().lower() == "y"
+            run_demucs(str(track_path), str(output_path), mp3)
+            
+            again = input("separate another track? (y/n): ").strip().lower()
+            
+            if again != "y":
+                console.print("[dim]goodbye![/dim]")
+                break
+
+    except KeyboardInterrupt:
+        console.print("\n[dim]goodbye![/dim]")
