@@ -24,17 +24,7 @@ pip install -e .
 ## usage
 ```bash
 music-stems                           # home screen
-music-stems <track>
-music-stems <track> --mp3
-music-stems <track> -d cpu -o ~/Desktop
 ```
 
-## options
-| flag | description | default |
-|------|-------------|---------|
-| `-d, --device` | `mps`, `cpu`, or `cuda` | `mps` |
-| `-o, --output` | output directory | `./separated` |
-| `--mp3` | save as mp3 instead of wav | off |
-
 ## credits
-stems are created by [demucs](https://github.com/facebookresearch/demucs) by Meta Research
+audio is split into stems via [demucs](https://github.com/facebookresearch/demucs) from Meta Research
